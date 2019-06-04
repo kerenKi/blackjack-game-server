@@ -43,5 +43,5 @@ const io = socketIo.listen(server);
 io.on("connection", socket => {
   console.log("socket.id test:", socket.id);
 
-  client.on("disconnect", () => console.log("disconnect test:", socket.id));
+  socket.on("disconnect", () => console.log("disconnect test:", socket.id));
 });
