@@ -8,9 +8,10 @@ const bodyParser = require("body-parser");
 const userRouter = require('./users/routes')
 const routing = require('./Game/routes')
 
+//Array of players playing the game:
 const players = []
 
-// Dispatch
+// Dispatch the array of players to all clients:
 const dispatcher = io => {
   return function dispatch(payload) {
     const action = {
