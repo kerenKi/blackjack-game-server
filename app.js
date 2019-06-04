@@ -2,10 +2,13 @@
 const express = require("express");
 const app = express();
 const port = 4000;
+const socketIo = require("socket.io");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const User = require("./users/model");
 
 // Use
+app.use(cors());
 app.use(bodyParser.json());
 
 // Home
@@ -31,4 +34,14 @@ app.post("/users", (req, res, next) => {
 });
 
 // Listen
-app.listen(port, () => console.log("Express listens on port " + port + "!"));
+const server = app.listen(port, () =>
+  console.log("Express listens on port " + port + "!")
+);
+const io = socketIo.listen(server);
+
+// IO
+io.on("connection", socket => {
+  console.log("socket.id test:", socket.id);
+
+  client.on("disconnect", () => console.log("disconnect test:", socket.id));
+});
