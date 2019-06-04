@@ -1,4 +1,4 @@
-// Imports
+// Import
 const express = require("express");
 const app = express();
 const port = 4000;
@@ -30,4 +30,5 @@ app.post("/users", (req, res, next) => {
     .catch(error => next(error));
 });
 
+// Listen
 app.listen(port, () => console.log("Express listens on port " + port + "!"));

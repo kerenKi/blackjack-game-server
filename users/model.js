@@ -1,6 +1,8 @@
+// Import
 const Sequelize = require("sequelize");
 const sequelize = require("../db");
 
+// Model
 const User = sequelize.define(
   "users",
   {
@@ -15,4 +17,5 @@ const User = sequelize.define(
   }
 );
 
+// Export
 module.exports = User;
