@@ -6,18 +6,21 @@ const socketIo = require("socket.io");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const userRouter = require('./users/routes')
+const routing = require('./Game/routes')
 
+const players = []
 
-// Use
-app.use(cors());
-app.use(bodyParser.json());
-app.use(userRouter)
+// Dispatch
+const dispatcher = io => {
+  return function dispatch(payload) {
+    const action = {
+      type: "PLAYERS_IN_GAME",
+      payload
+    };
 
-
-// Home
-app.get("/", (req, res) => {
-  res.send("hello from home!");
-});
+    io.emit("action", action);
+  };
+};
 
 // Listen
 const server = app.listen(port, () =>
@@ -25,18 +28,24 @@ const server = app.listen(port, () =>
 );
 const io = socketIo.listen(server);
 
-// Dispatch
-const dispatcher = io => {
-  return function dispatch(payload) {
-    const action = {
-      type: "MESSAGES",
-      payload
-    };
-
-    io.emit("action", action);
-  };
-};
 const dispatch = dispatcher(io);
+
+
+const gameRouter = routing(dispatch, players)
+
+
+// Use
+app.use(cors());
+app.use(bodyParser.json());
+app.use(userRouter)
+app.use(gameRouter)
+
+
+// Home
+app.get("/", (req, res) => {
+  res.send("hello from home!");
+});
+
 
 // IO
 io.on("connection", client => {
@@ -44,7 +53,7 @@ io.on("connection", client => {
   console.log(client.id, "connects.");
 
   // Send action
-  dispatch("hello");
+  dispatch(players)
 
   // Disconnect
   client.on("disconnect", () => console.log(client.id, "disconnects."));
