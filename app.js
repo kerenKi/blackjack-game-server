@@ -39,9 +39,27 @@ const server = app.listen(port, () =>
 );
 const io = socketIo.listen(server);
 
-// IO
-io.on("connection", socket => {
-  console.log("socket.id test:", socket.id);
+// Dispatch
+const dispatcher = io => {
+  return function dispatch(payload) {
+    const action = {
+      type: "MESSAGES",
+      payload
+    };
 
-  socket.on("disconnect", () => console.log("disconnect test:", socket.id));
+    io.emit("action", action);
+  };
+};
+const dispatch = dispatcher(io);
+
+// IO
+io.on("connection", client => {
+  // Connect
+  console.log(client.id, "connects.");
+
+  // Send action
+  dispatch("hello");
+
+  // Disconnect
+  client.on("disconnect", () => console.log(client.id, "disconnects."));
 });
