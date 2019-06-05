@@ -10,7 +10,7 @@ const { playersRouting, gameRouting, startGameRouting } = require('./Game/routes
 
 
 //Array of players playing the game:
-const players = []
+let players = []
 
 let current_turn = 0;
 let _turn = 0;

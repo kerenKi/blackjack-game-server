@@ -43,6 +43,7 @@ function gameRouting (dispatch,next_turn) {
     console.log('next player:',turn)
     //Send the updated player turn to all clients
     dispatch(turn)
+    response.send({message: 'you played your turn'})
   })
 }
 
