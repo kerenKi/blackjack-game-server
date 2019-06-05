@@ -6,7 +6,7 @@ const socketIo = require("socket.io");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const userRouter = require('./users/routes')
-const { playersRouting, gameRouting, startGameRouting } = require('./Game/routes')
+const { playersRouting, gameRouting, startGameRouting , gameOverRouting} = require('./Game/routes')
 
 
 //Array of players playing the game:
@@ -19,6 +19,14 @@ let _turn = 0;
 next_turn = () => {
   _turn = current_turn++ % players.length;
   return players[_turn]
+}
+
+//function that resets the players array to be empty again
+resetPlayers = () => {
+  console.log('resetPlayers players array before:',players)
+  players = []
+  console.log('resetPlayers players array after:',players)
+  return players
 }
 
 // Dispatch the array of players to all clients:
@@ -57,6 +65,18 @@ const gameDispatcher = io => {
   };
 };
 
+// Dispatch GAME_OVER action to all clients:
+const gameOverDispatcher = io => {
+  return function dispatch(payload) {
+    const action = {
+      type: "GAME_OVER",
+      payload
+    };
+
+    io.emit("action", action);
+  };
+};
+
 
 
 // Listen
@@ -69,11 +89,13 @@ const io = socketIo.listen(server);
 const dispatchPlayers = playersDispatcher(io);
 const dispatchNextTurn = gameDispatcher(io);
 const dispatchStartGame = startGameDispatcher(io);
+const dispatchGameOver = gameOverDispatcher(io);
 
 //Routers
 const playersRouter = playersRouting(dispatchPlayers, players)
 const gameRouter = gameRouting(dispatchNextTurn, next_turn)
 const startGameRouter = startGameRouting(dispatchStartGame, next_turn)
+const gameOverRouter = gameOverRouting(dispatchGameOver, resetPlayers)
 
 
 // Use
@@ -83,6 +105,7 @@ app.use(userRouter)
 app.use(playersRouter)
 app.use(gameRouter)
 app.use(startGameRouter)
+app.use(gameOverRouter)
 
 
 // Home
@@ -102,8 +125,5 @@ io.on("connection", client => {
   // Disconnect
   client.on("disconnect", () => console.log(client.id, "disconnects."));
 });
-
-
-
 
 

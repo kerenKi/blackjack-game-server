@@ -47,10 +47,22 @@ function gameRouting (dispatch,next_turn) {
   })
 }
 
+function gameOverRouting (dispatch,resetPlayers) {
+  const router = express.Router()
+
+  return router.get('/game_over', (request, response) => {
+    console.log('Game Over')
+    resetPlayers()
+    dispatch('players array cleared')
+    response.send({message: 'The game is over'})
+  })
+}
+
 
 module.exports = {
   gameRouting,
   playersRouting,
-  startGameRouting
+  startGameRouting,
+  gameOverRouting
 }
 
