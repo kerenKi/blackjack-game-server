@@ -106,12 +106,6 @@ app.use(startGameRouter)
 app.use(gameOverRouter)
 
 
-// Home
-app.get("/", (req, res) => {
-  res.send("hello from home!");
-});
-
-
 // IO
 io.on("connection", client => {
   // Connect
