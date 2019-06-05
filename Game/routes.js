@@ -8,8 +8,6 @@ function playersRouting (dispatch, players) {
     //Get player's id from the request:
     const { player } = request.body
 
-    console.log('post player:', player)
-
     //Push the id to the players array:
     players.push(player)
 

@@ -23,9 +23,7 @@ next_turn = () => {
 
 //function that resets the players array to be empty again
 resetPlayers = () => {
-  console.log('resetPlayers players array before:',players)
-  players = []
-  console.log('resetPlayers players array after:',players)
+  players.length = 0
   return players
 }
 
