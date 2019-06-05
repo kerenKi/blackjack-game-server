@@ -5,33 +5,48 @@ const port = 4000;
 const socketIo = require("socket.io");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const User = require("./users/model");
+const userRouter = require('./users/routes')
+const { playersRouting, gameRouting } = require('./Game/routes')
 
-// Use
-app.use(cors());
-app.use(bodyParser.json());
 
-// Home
-app.get("/", (req, res) => {
-  res.send("hello from home!");
-});
+//Array of players playing the game:
+const players = []
 
-// Create user
-app.post("/users", (req, res, next) => {
-  const user = {
-    name: req.body.name
+let current_turn = 0;
+let _turn = 0;
+
+//function that scan the players array and returns the id of the next player
+next_turn = () => {
+  _turn = current_turn++ % players.length;
+  console.log("next turn goes to: " , players[_turn]);
+  return players[_turn]
+}
+
+// Dispatch the array of players to all clients:
+const playersDispatcher = io => {
+  return function dispatch(payload) {
+    const action = {
+      type: "PLAYERS_IN_GAME",
+      payload
+    };
+
+    io.emit("action", action);
   };
-  User.create(user)
-    .then(user => {
-      if (!user) {
-        return res.status(404).send({
-          message: `User does not exist`
-        });
-      }
-      return res.status(201).send(user);
-    })
-    .catch(error => next(error));
-});
+};
+
+// Dispatch the player who plays next to all clients:
+const gameDispatcher = io => {
+  return function dispatch(payload) {
+    const action = {
+      type: "NEXT_TURN",
+      payload
+    };
+
+    io.emit("action", action);
+  };
+};
+
+
 
 // Listen
 const server = app.listen(port, () =>
@@ -39,18 +54,27 @@ const server = app.listen(port, () =>
 );
 const io = socketIo.listen(server);
 
-// Dispatch
-const dispatcher = io => {
-  return function dispatch(payload) {
-    const action = {
-      type: "MESSAGES",
-      payload
-    };
+const dispatchPlayers = playersDispatcher(io);
+const dispatchNextTurn = gameDispatcher(io);
 
-    io.emit("action", action);
-  };
-};
-const dispatch = dispatcher(io);
+
+const playersRouter = playersRouting(dispatchPlayers, players)
+const gameRouter = gameRouting(dispatchNextTurn, next_turn)
+
+
+// Use
+app.use(cors());
+app.use(bodyParser.json());
+app.use(userRouter)
+app.use(playersRouter)
+app.use(gameRouter)
+
+
+// Home
+app.get("/", (req, res) => {
+  res.send("hello from home!");
+});
+
 
 // IO
 io.on("connection", client => {
@@ -58,8 +82,13 @@ io.on("connection", client => {
   console.log(client.id, "connects.");
 
   // Send action
-  dispatch("hello");
+  dispatchPlayers(players)
 
   // Disconnect
   client.on("disconnect", () => console.log(client.id, "disconnects."));
 });
+
+
+
+
+
