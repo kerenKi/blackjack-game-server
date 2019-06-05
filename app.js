@@ -6,7 +6,7 @@ const socketIo = require("socket.io");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const userRouter = require('./users/routes')
-const { playersRouting, gameRouting } = require('./Game/routes')
+const { playersRouting, gameRouting, startGameRouting } = require('./Game/routes')
 
 
 //Array of players playing the game:
@@ -18,7 +18,6 @@ let _turn = 0;
 //function that scan the players array and returns the id of the next player
 next_turn = () => {
   _turn = current_turn++ % players.length;
-  console.log("next turn goes to: " , players[_turn]);
   return players[_turn]
 }
 
@@ -27,6 +26,18 @@ const playersDispatcher = io => {
   return function dispatch(payload) {
     const action = {
       type: "PLAYERS_IN_GAME",
+      payload
+    };
+
+    io.emit("action", action);
+  };
+};
+
+// Dispatch the player who start the game to all clients:
+const startGameDispatcher = io => {
+  return function dispatch(payload) {
+    const action = {
+      type: "STARTING_PLAYER",
       payload
     };
 
@@ -54,12 +65,15 @@ const server = app.listen(port, () =>
 );
 const io = socketIo.listen(server);
 
+//Dispatchers
 const dispatchPlayers = playersDispatcher(io);
 const dispatchNextTurn = gameDispatcher(io);
+const dispatchStartGame = startGameDispatcher(io);
 
-
+//Routers
 const playersRouter = playersRouting(dispatchPlayers, players)
 const gameRouter = gameRouting(dispatchNextTurn, next_turn)
+const startGameRouter = startGameRouting(dispatchStartGame, next_turn)
 
 
 // Use
@@ -68,6 +82,7 @@ app.use(bodyParser.json());
 app.use(userRouter)
 app.use(playersRouter)
 app.use(gameRouter)
+app.use(startGameRouter)
 
 
 // Home
