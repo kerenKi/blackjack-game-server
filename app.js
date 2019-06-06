@@ -6,7 +6,7 @@ const socketIo = require("socket.io");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const userRouter = require('./users/routes')
-const { playersRouting, gameRouting, startGameRouting , gameOverRouting} = require('./Game/routes')
+const { playersRouting, gameRouting, startGameRouting , gameOverRouting, updatePlayerDataRouting} = require('./Game/routes')
 
 
 //Array of players playing the game:
@@ -91,6 +91,7 @@ const dispatchGameOver = gameOverDispatcher(io);
 
 //Routers
 const playersRouter = playersRouting(dispatchPlayers, players)
+const updatePlayersDataRouter = updatePlayerDataRouting(dispatchPlayers, players)
 const gameRouter = gameRouting(dispatchNextTurn, next_turn)
 const startGameRouter = startGameRouting(dispatchStartGame, next_turn)
 const gameOverRouter = gameOverRouting(dispatchGameOver, resetPlayers)
@@ -101,6 +102,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(userRouter)
 app.use(playersRouter)
+app.use(updatePlayersDataRouter)
 app.use(gameRouter)
 app.use(startGameRouter)
 app.use(gameOverRouter)
