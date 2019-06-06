@@ -6,7 +6,11 @@ const socketIo = require("socket.io");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const userRouter = require('./users/routes')
-const { playersRouting, gameRouting, startGameRouting , gameOverRouting, updatePlayerDataRouting} = require('./Game/routes')
+const { playersRouting, 
+        gameRouting,
+        startGameRouting,
+        gameOverRouting,
+        updatePlayerDataRouting } = require('./Game/routes')
 
 
 //Array of players playing the game:
@@ -15,9 +19,14 @@ let players = []
 let current_turn = 0;
 let _turn = 0;
 
-//function that scan the players array and returns the id of the next player
+//function that scan the players array and returns the object of the next player
 next_turn = () => {
-  _turn = current_turn++ % players.length;
+  const allCalled = players.every(player => player.call)
+  if (!allCalled){
+    do {
+      _turn = current_turn++ % players.length;
+    } while (players[_turn].call)
+  }
   return players[_turn]
 }
 
@@ -75,8 +84,6 @@ const gameOverDispatcher = io => {
   };
 };
 
-
-
 // Listen
 const server = app.listen(port, () =>
   console.log("Express listens on port " + port + "!")
@@ -96,7 +103,6 @@ const gameRouter = gameRouting(dispatchNextTurn, next_turn)
 const startGameRouter = startGameRouting(dispatchStartGame, next_turn)
 const gameOverRouter = gameOverRouting(dispatchGameOver, resetPlayers)
 
-
 // Use
 app.use(cors());
 app.use(bodyParser.json());
@@ -106,7 +112,6 @@ app.use(updatePlayersDataRouter)
 app.use(gameRouter)
 app.use(startGameRouter)
 app.use(gameOverRouter)
-
 
 // IO
 io.on("connection", client => {
@@ -119,5 +124,3 @@ io.on("connection", client => {
   // Disconnect
   client.on("disconnect", () => console.log(client.id, "disconnects."));
 });
-
-
