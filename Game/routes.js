@@ -19,7 +19,7 @@ function playersRouting (dispatch, players) {
   })
 }
 
-  //put request handler to update a player state
+//put request handler to update a player state
 function updatePlayerDataRouting (dispatch, players) {
   const router = express.Router()
 
@@ -27,13 +27,10 @@ function updatePlayerDataRouting (dispatch, players) {
   return router.post('/player_update', (request, response) => {
     //Get player's object from the request:
     const { player } = request.body
-    console.log('req body:', request.body)
 
     const id = player.id
-    console.log('id:', id)
 
     const playerIdToUpdate = players.findIndex(player => player.id === id)
-    console.log('playerIdToUpdate', playerIdToUpdate)
 
     players[playerIdToUpdate] = player
 
@@ -45,14 +42,13 @@ function updatePlayerDataRouting (dispatch, players) {
   })
 }
 
-
 function startGameRouting (dispatch,next_turn) {
   const router = express.Router()
 
   return router.get('/start_game', (request, response) => {
     console.log('Starting game')
     const turn = next_turn()
-    console.log('next player:',turn)
+    console.log('starting player:',turn)
     //Send the updated player turn to all clients
     dispatch(turn)
     response.send({message: 'Game started'})
@@ -63,7 +59,6 @@ function gameRouting (dispatch,next_turn) {
   const router = express.Router()
 
   return router.get('/game', (request, response) => {
-    console.log('Turn played')
     const turn = next_turn()
     console.log('next player:',turn)
     //Send the updated player turn to all clients
@@ -83,12 +78,11 @@ function gameOverRouting (dispatch,resetPlayers) {
   })
 }
 
-
 module.exports = {
   gameRouting,
   playersRouting,
   startGameRouting,
   gameOverRouting,
-  updatePlayerDataRouting
+  updatePlayerDataRouting,
 }
 
