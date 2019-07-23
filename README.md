@@ -19,5 +19,5 @@ Click links to view some samples in this project
 * [Sequelize](https://github.com/kerenKi/blackjack-game-server/blob/master/users/model.js)
 * [Socket.io](https://github.com/kerenKi/blackjack-game-server/blob/master/app.js)
 
-[Here is the frontend side of the project](https://github.com/kerenKi/Blackjack-Game-Client)
+[Here](https://github.com/kerenKi/Blackjack-Game-Client) is the frontend side of the project
 
